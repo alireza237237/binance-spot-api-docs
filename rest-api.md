@@ -67,16 +67,13 @@
     - [Query Commission Rates (USER_DATA)](#query-commission-rates-user_data)
     - [Query Order Amendments (USER_DATA)](#query-order-amendments-user_data)
     - [Query Relevant Filters (USER_DATA)](#query-relevant-filters-user_data)
-  - [User data stream endpoints (Deprecated)](#user-data-stream-endpoints-deprecated)
-    - [Start user data stream (USER_STREAM) (Deprecated)](#start-user-data-stream-user_stream-deprecated)
-    - [Keepalive user data stream (USER_STREAM) (Deprecated)](#keepalive-user-data-stream-user_stream-deprecated)
-    - [Close user data stream (USER_STREAM) (Deprecated)](#close-user-data-stream-user_stream-deprecated)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Public Rest API for Binance
 
-**Last Updated: 2025-09-29**
+**Last Updated: 2025-10-28**
+
 
 ## General API Information
 * The following base endpoints are available. Please use whichever works best for your setup:
@@ -532,7 +529,7 @@ symbol |STRING| No| Example: curl -X GET "https://api.binance.com/api/v3/exchang
 symbols |ARRAY OF STRING|No| Examples: curl -X GET "https://api.binance.com/api/v3/exchangeInfo?symbols=%5B%22BNBBTC%22,%22BTCUSDT%22%5D" <br/> or <br/> curl -g -X  GET 'https://api.binance.com/api/v3/exchangeInfo?symbols=["BTCUSDT","BNBBTC"]'
 permissions |ENUM|No|Examples: curl -X GET "https://api.binance.com/api/v3/exchangeInfo?permissions=SPOT" <br/> or <br/> curl -X GET "https://api.binance.com/api/v3/exchangeInfo?permissions=%5B%22MARGIN%22%2C%22LEVERAGED%22%5D" <br/> or <br/> curl -g -X GET 'https://api.binance.com/api/v3/exchangeInfo?permissions=["MARGIN","LEVERAGED"]' |
 showPermissionSets|BOOLEAN|No|Controls whether the content of the `permissionSets` field is populated or not. Defaults to `true`
-symbolStatus|ENUM|No|Filters symbols that have this `tradingStatus`. Valid values: `TRADING`, `HALT`, `BREAK` <br> Cannot be used in combination with `symbols` or `symbol`.|
+symbolStatus|ENUM|No|Filters for symbols that have this `tradingStatus`. Valid values: `TRADING`, `HALT`, `BREAK` <br> Cannot be used in combination with `symbols` or `symbol`.|
 
 **Notes:**
 * If the value provided to `symbol` or `symbols` do not exist, the endpoint will throw an error saying the symbol is invalid.
@@ -650,6 +647,7 @@ Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
 limit | INT | NO | Default: 100; Maximum: 5000. <br/> If limit > 5000, only 5000 entries will be returned.
+symbolStatus|ENUM|NO|Filters for symbols that have this `tradingStatus`. <br/>A status mismatch returns error `-1220 SYMBOL_DOES_NOT_MATCH_STATUS`.<br/> Valid values: `TRADING`, `HALT`, `BREAK`
 
 **Data Source:**
 Memory
@@ -1010,6 +1008,12 @@ GET /api/v3/ticker/24hr
         <td>NO</td>
         <td>Supported values: <tt>FULL</tt> or <tt>MINI</tt>. <br/>If none provided, the default is <tt>FULL</tt> </td>
      </tr>
+     <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td>NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple or all symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+     </tr>
 </tbody>
 </table>
 
@@ -1167,6 +1171,12 @@ Price change statistics for a trading day.
       <td>ENUM</td>
       <td>NO</td>
       <td>Supported values: <tt>FULL</tt> or <tt>MINI</tt>. <br/>If none provided, the default is <tt>FULL</tt> </td>
+  </tr>
+  <tr>
+      <td>symbolStatus</td>
+      <td>ENUM</td>
+      <td>NO</td>
+      <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
   </tr>
 </table>
 
@@ -1362,6 +1372,12 @@ Latest price for a symbol or symbols.
         <td>STRING</td>
         <td>NO</td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td>NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple or all symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -1452,6 +1468,12 @@ Best price/qty on the order book for a symbol or symbols.
         <td>STRING</td>
         <td>NO</td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td>NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple or all symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -1537,6 +1559,12 @@ E.g. If the `closeTime` is 1641287867099 (January 04, 2022 09:17:47:099 UTC) , a
       <td>ENUM</td>
       <td>NO</td>
       <td>Supported values: <tt>FULL</tt> or <tt>MINI</tt>. <br/>If none provided, the default is <tt>FULL</tt> </td>
+  </tr>
+  <tr>
+      <td>symbolStatus</td>
+      <td>ENUM</td>
+      <td>NO</td>
+      <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>.<br>For multiple symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code></td>
   </tr>
 </table>
 
@@ -4232,86 +4260,4 @@ Memory
     }
   ]
 }
-```
-
-
-<a id="user-data-stream-requests"></a>
-
-## User data stream endpoints (Deprecated)
-
-> [!IMPORTANT]
-> These requests have been deprecated, which means we will remove them in the future.
-> Please subscribe to the User Data Stream through the [WebSocket API](web-socket-api.md) instead.
-
-The following requests manage [User Data Stream](user-data-stream.md) subscriptions.
-
-### Start user data stream (USER_STREAM) (Deprecated)
-```
-POST /api/v3/userDataStream
-```
-Start a new user data stream. The stream will close after 60 minutes unless a keepalive is sent.
-This request does not require `signature`.
-
-**Weight:**
-2
-
-**Parameters:**
-NONE
-
-**Data Source:**
-Memory
-
-**Response:**
-```javascript
-{
-  "listenKey": "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1"
-}
-```
-
-### Keepalive user data stream (USER_STREAM) (Deprecated)
-```
-PUT /api/v3/userDataStream
-```
-Keepalive a user data stream to prevent a time out. User data streams will close after 60 minutes. It's recommended to send a ping about every 30 minutes.
-
-This request does not require `signature`.
-
-**Weight:**
-2
-
-**Data Source:**
-Memory
-
-**Parameters:**
-
-Name | Type | Mandatory | Description
------------- | ------------ | ------------ | ------------
-listenKey | STRING | YES
-
-**Response:**
-```javascript
-{}
-```
-
-### Close user data stream (USER_STREAM) (Deprecated)
-```
-DELETE /api/v3/userDataStream
-```
-Close out a user data stream.
-
-**Weight:**
-2
-
-**Parameters:**
-
-Name | Type | Mandatory | Description
------------- | ------------ | ------------ | ------------
-listenKey | STRING | YES
-
-**Data Source:**
-Memory
-
-**Response:**
-```javascript
-{}
 ```

@@ -1,6 +1,70 @@
 # 更新日志
 
-**最近更新： 2025-10-08**
+**最近更新： 2025-10-28**
+
+### 2025-10-28
+
+**注意：以下变更将于 2025 年 10 月 28 日 04:00 (UTC) 推出，可能需要几个小时才能完成部署。**
+
+* 可选参数 `symbolStatus` 已添加到以下端点：
+    * **REST API**
+      * `GET /api/v3/depth`
+      * `GET /api/v3/ticker/price`
+      * `GET /api/v3/ticker/bookTicker`
+      * `GET /api/v3/ticker/24hr`
+      * `GET /api/v3/ticker/tradingDay`
+      * `GET /api/v3/ticker`
+    * **WebSocket API**
+      * `depth`
+      * `ticker.price`
+      * `ticker.book`
+      * `ticker.24hr`
+      * `ticker.tradingDay`
+      * `ticker`
+* 当提供参数 `symbolStatus=<STATUS>` 时，只有交易状态与指定的 `STATUS` 相匹配的交易对才会包含在响应中：
+    * 如果使用 `symbol=<SYMBOL>` 参数指定单个交易对，但是这个交易对的状态与指定的 `STATUS` 不匹配时，端点将返回错误代码 [`-1220 SYMBOL_DOES_NOT_MATCH_STATUS`](./errors_CN.md#-1220-symbol_does_not_match_status)。
+    * 如果使用 `symbols=[...]` 参数指定了多个交易对，那么响应将是一个数组。该数组中将不会包括交易状态与 `STATUS` 不匹配的交易对。当 symbols 参数中所指定的交易对中没有任何一个交易对的状态与 `STATUS` 相匹配时，响应将为一个空数组。
+    * 对于 `symbol` 和 `symbols` 参数为可选参数的端点，省略这些参数将被视为在 `symbols=[...]` 参数中指定了所有交易对。有关 `symbolStatus=<STATUS>` 的行为，请参阅上一行。
+
+---
+
+### 2025-10-24
+
+#### SBE
+
+* SBE：schema 3:1（[spot_3_1.xml](https://github.com/binance/binance-spot-api-docs/blob/master/sbe/schemas/spot_3_1.xml)）已更新，支持保证金交易的[listenToken 订阅方法](https://developers.binance.com/docs/zh-CN/margin_trading/trade-data-stream/Listen-Token-Websocket-API)。
+
+#### REST 和 WebSocket API
+
+根据 [2025-04-07](#2025-04-07) 的公告，所有关于在 `wss://stream.binance.com` 上使用 `listenKey` 的文档已被移除。请参阅以下请求和方法列表以获取详细信息。
+该功能将在未来发布停用公告之前继续可用。
+
+**特此提醒您： 您应该通过订阅 [在 WebSocket API 内的账户信息流](https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/websocket-api/user-data-stream-requests) 来获得用户账户更新。这样可以提供更好的性能（更低的延迟）。**
+
+请参阅下方请求和方法列表来了解更多详情。
+
+这些功能将持续可用，直至另行发布停用公告。
+
+* REST API
+  * `POST /api/v3/userDataStream`
+  * `PUT /api/v3/userDataStream`
+  * `DELETE /api/v3/userDataStream`
+
+* WebSocket API
+  * `userDataStream.start`
+  * `userDataStream.ping`
+  * `userDataStream.stop`
+
+---
+
+### 2025-10-21
+
+REST 和 WebSocket API：
+
+* 注意：根据我们的 SBE 政策，[在被废止 6 个月后](faqs/sbe_faq_CN.md#sbe-schema)， SBE 2:1 模式将于 2025 年 10 月 24 日被禁用。
+* [面向生产的 SBE 生命周期](https://github.com/binance/binance-spot-api-docs/blob/master/sbe/schemas/sbe_schema_lifecycle_prod.json) 已基于本次更改进行了更新。
+
+---
 
 ### 2025-10-08
 
@@ -9,7 +73,7 @@
   * 更新了 [`InstrumentList`](fix-api_CN.md#instrumentlist) 消息：
     * 新增字段：`StartPriceRange`、`EndPriceRange`。
     * 以下字段改为可选：`MinTradeVol`、`MaxTradeVol`、`MinQtyIncrement`、`MarketMinTradeVol`、`MarketMaxTradeVol`、`MarketMinQtyIncrement`、`MinPriceIncrement`。
-  * **关于 InstrumentList `<y>` 的更改属于重大变更。因此，请务必更新至最新版本的模式。列出的以上 7个字段将于 2025 年 10 月 23 日 07:00 (UTC) 变为可选字段。**
+  * **InstrumentList `<y>` 的变更属于破坏性变更，预计将于 2025-10-23 07:00 UTC 左右发布。请在此之前更新到新的模式。**
   * 在[SPOT 测试网](https://testnet.binance.vision/) 上已经启用了这个重大更改。
 
 ---
@@ -331,7 +395,7 @@ REST 和 WebSocket API：
 
 * **我们将弃用此功能： 通过使用 `listenKey` 来访问 wss://stream.binance.com:9443 以监听账户信息的。**
     * 以后但不是当前，此功将被能从我们的系统中删除。
-* **您应该通过订阅 [在 WebSocket API 内的账户信息流](web-socket-api_CN.md) 来获得用户账户更新。**
+* **您应该通过订阅 [在 WebSocket API 内的账户信息流](https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/websocket-api/user-data-stream-requests) 来获得用户账户更新。**
   * 这个方式会提供稍好的性能 **（较低的延迟）**。
   * 必须使用 Ed25519 API 密钥
 * 在未来的更新中，将删除有关账户数据流的 WebSocket 基本访问地址的信息。

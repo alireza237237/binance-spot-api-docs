@@ -82,17 +82,13 @@
       - [Subscribe to User Data Stream (USER_STREAM)](#subscribe-to-user-data-stream-user_stream)
       - [Unsubscribe from User Data Stream](#unsubscribe-from-user-data-stream)
       - [Listing all subscriptions](#listing-all-subscriptions)
-      - [Subscribe to User Data Stream through signature subscription (USER_DATA)](#subscribe-to-user-data-stream-through-signature-subscription-user_data)
-    - [Listen Key Management (Deprecated)](#listen-key-management-deprecated)
-      - [Start user data stream (USER_STREAM) (Deprecated)](#start-user-data-stream-user_stream-deprecated)
-      - [Ping user data stream (USER_STREAM) (Deprecated)](#ping-user-data-stream-user_stream-deprecated)
-      - [Stop user data stream (USER_STREAM) (Deprecated)](#stop-user-data-stream-user_stream-deprecated)
+      - [Subscribe to User Data Stream through signature subscription (USER_STREAM)](#subscribe-to-user-data-stream-through-signature-subscription-user_stream)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Public WebSocket API for Binance
 
-**Last Updated: 2025-09-29**
+**Last Updated: 2025-10-28**
 
 ## General API Information
 
@@ -319,11 +315,11 @@ See [Error codes for Binance](errors.md) for a list of error codes and messages.
 
 ## Event format
 
-User Data Stream events for non-SBE sessions are sent as JSON in **text frames**, one event per frame.
+[User Data Stream](user-data-stream.md) events for non-SBE sessions are sent as JSON in **text frames**, one event per frame
 
-Events in SBE sessions will be sent as **binary frames**.
+Events in [SBE sessions](faqs/sbe_faq.md) will be sent as **binary frames**.
 
-Please refer to [`userDataStream.subscribe`](#user_data_stream_subscribe) for details on how to subscribe to User Data Stream in WebSocket API.
+Please refer to [`userDataStream.subscribe`](#user-data-stream-subscribe) for details on how to subscribe to User Data Stream in WebSocket API.
 
 Example of an event:
 
@@ -336,12 +332,12 @@ Example of an event:
     "u": 1728972148778,
     "B": [
       {
-        "a": "ABC",
+        "a": "BTC",
         "f": "11818.00000000",
         "l": "182.00000000"
       },
       {
-        "a": "DEF",
+        "a": "USDT",
         "f": "10580.00000000",
         "l": "70.00000000"
       }
@@ -1137,7 +1133,7 @@ Query current exchange trading rules, rate limits, and symbol information.
     <tr>
         <td><code>symbolStatus</code></td>
         <td>ENUM</td>
-        <td>Filters symbols that have this <code>tradingStatus</code>.<br></br> Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> <br> Cannot be used in combination with <code>symbol</code> or <code>symbols</code></td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br></br> Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> <br> Cannot be used in combination with <code>symbol</code> or <code>symbols</code></td>
     </tr>
 </tbody>
 </table>
@@ -1329,6 +1325,7 @@ Name      | Type    | Mandatory | Description
 --------- | ------- | --------- | -----------
 `symbol`  | STRING  | YES       |
 `limit`   | INT     | NO        | Default: 100; Maximum: 5000
+`symbolStatus`|ENUM | NO        | Filters for symbols that have this `tradingStatus`.<br/>A status mismatch returns error `-1220 SYMBOL_DOES_NOT_MATCH_STATUS`<br/>Valid values: `TRADING`, `HALT`, `BREAK`
 
 **Data Source:**
 Memory
@@ -1894,6 +1891,12 @@ Adjusted based on the number of requested symbols:
         <td align="center">NO</td>
         <td>Ticker type: <code>FULL</code> (default) or <code>MINI</code></td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td rowspan="2" align="center">NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>.<br>For multiple or all symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -2100,6 +2103,12 @@ Price change statistics for a trading day.
       <td>ENUM</td>
       <td>NO</td>
       <td>Supported values: <tt>FULL</tt> or <tt>MINI</tt>. <br/>If none provided, the default is <tt>FULL</tt> </td>
+  </tr>
+  <tr>
+      <td>symbolStatus</td>
+      <td>ENUM</td>
+      <td>NO</td>
+      <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple symbols, non-matching ones are simply excluded from the response.<br> Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
   </tr>
 </table>
 
@@ -2374,6 +2383,12 @@ Adjusted based on the number of requested symbols:
         <td align="center">NO</td>
         <td>Default <code>1d</code></td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td align="center">NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -2571,6 +2586,12 @@ Adjusted based on the number of requested symbols:
         <td>ARRAY of STRING</td>
         <td>Query price for multiple symbols</td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td align="center">NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>.<br>For multiple or all symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -2689,6 +2710,12 @@ Adjusted based on the number of requested symbols:
         <td><code>symbols</code></td>
         <td>ARRAY of STRING</td>
         <td>Query ticker for multiple symbols</td>
+    </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td align="center">NO</td>
+        <td>Filters for symbols that have this <code>tradingStatus</code>.<br>For a single symbol, a status mismatch returns error <code>-1220 SYMBOL_DOES_NOT_MATCH_STATUS</code>. <br>For multiple or all symbols, non-matching ones are simply excluded from the response.<br>Valid values: <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
     </tr>
 </tbody>
 </table>
@@ -4593,7 +4620,8 @@ newQty | DECIMAL | YES | `newQty` must be greater than 0 and less than the order
 recvWindow | DECIMAL | NO | The value cannot be greater than `60000`. <br> Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified.
 timestamp | LONG | YES |
 
-**Data Source**: Matching Engine
+**Data Source**:
+Matching Engine
 
 **Response:**
 
@@ -5315,7 +5343,6 @@ Depending on the `pendingType` or `workingType`, some optional parameters will b
 |`pendingType` =`STOP_LOSS_LIMIT` or `TAKE_PROFIT_LIMIT`|`pendingPrice`, `pendingStopPrice` and/or `pendingTrailingDelta`, `pendingTimeInForce`|
 
 **Data Source:**
-
 Matching Engine
 
 **Response:**
@@ -5511,7 +5538,8 @@ Depending on the `pendingAboveType`/`pendingBelowType` or `workingType`, some op
 `pendingBelowType= STOP_LOSS/TAKE_PROFIT`         |`pendingBelowStopPrice` and/or `pendingBelowTrailingDelta`|
 |`pendingBelowType=STOP_LOSS_LIMIT/TAKE_PROFIT_LIMIT`|`pendingBelowPrice`, `pendingBelowStopPrice` and/or `pendingBelowTrailingDelta`, `pendingBelowTimeInForce`|
 
-**Data Source:** Matching Engine
+**Data Source:**
+Matching Engine
 
 **Response:**
 
@@ -6940,7 +6968,6 @@ Querying by `preventedMatchId`  | 2
 Querying by `orderId`           | 20
 
 **Data Source:**
-
 Database
 
 **Response:**
@@ -7278,8 +7305,8 @@ Memory
 
 * User Data Stream subscriptions allow you to receive all the events related to a given account on a WebSocket connection.
 * There are 2 ways to start a subscription:
-  * If you have an authenticated session, then you can subscribe to events for that authenticated account using [`userDataStream.subscribe`](#user_data_stream_subscribe).
-  * You can additionally open extra subscriptions for any account for which you have an API Key, using [`userdataStream.subscribe.signature`](#user-data-signature).
+  * If you have an authenticated session, then you can subscribe to events for that authenticated account using [`userDataStream.subscribe`](#user-data-stream-subscribe).
+  * In any session, authenticated or not, you can subscribe to events for one or more accounts for which you can provide an API Key signature, using [`userdataStream.subscribe.signature`](#user-data-signature).
   * You can have only one active subscription for a given account on a given connection.
 * Subscriptions are identified by a `subscriptionId` which is returned when starting the subscription. That `subscriptionId` allows you to map the events you receive to a given subscription.
   * All active subscriptions for a session can be found using [`session.subscriptions`](#session-subscription).
@@ -7294,7 +7321,7 @@ Memory
   * `true` - There is at **least one subscription active** in this session.
   * `false` - There are **no active subscriptions** in this session.
 
-<a id="user_data_stream_subscribe"></a>
+<a id="user-data-stream-subscribe"></a>
 
 #### Subscribe to User Data Stream (USER_STREAM)
 
@@ -7406,7 +7433,7 @@ Memory
 
 <a id="user-data-signature"></a>
 
-#### Subscribe to User Data Stream through signature subscription (USER_DATA)
+#### Subscribe to User Data Stream through signature subscription (USER_STREAM)
 
 ```javascript
 {
@@ -7443,168 +7470,5 @@ Memory
   "result": {
     "subscriptionId": 0
   }
-}
-```
-
-<a id="user-data-stream-requests"></a>
-### Listen Key Management (Deprecated)
-
-> [!IMPORTANT]
-> These requests have been deprecated, which means we will remove them in the future.
-> Please subscribe to the User Data Stream through the [WebSocket API](#user_data_stream_subscribe) instead.
-
-The following requests manage [User Data Stream](user-data-stream.md) subscriptions.
-
-#### Start user data stream (USER_STREAM) (Deprecated)
-
-```javascript
-{
-  "id": "d3df8a61-98ea-4fe0-8f4e-0fcea5d418b0",
-  "method": "userDataStream.start",
-  "params": {
-    "apiKey": "vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A"
-  }
-}
-```
-
-Start a new user data stream.
-Note the stream will close in 60 minutes unless [`userDataStream.ping`](#ping-user-data-stream-user_stream) requests are sent regularly.
-This request does not require `signature`.
-
-**Weight:**
-2
-
-**Parameters:**
-
-Name                | Type    | Mandatory | Description
-------------------- | ------- | --------- | ------------
-`apiKey`            | STRING  | YES       |
-
-
-**Data Source:**
-Memory
-
-**Response:**
-
-Subscribe to the received listen key on WebSocket Stream afterwards.
-
-```javascript
-{
-  "id": "d3df8a61-98ea-4fe0-8f4e-0fcea5d418b0",
-  "status": 200,
-  "result": {
-    "listenKey": "xs0mRXdAKlIPDRFrlPcw0qI41Eh3ixNntmymGyhrhgqo7L6FuLaWArTD7RLP"
-  },
-  "rateLimits": [
-    {
-      "rateLimitType": "REQUEST_WEIGHT",
-      "interval": "MINUTE",
-      "intervalNum": 1,
-      "limit": 6000,
-      "count": 2
-    }
-  ]
-}
-```
-
-#### Ping user data stream (USER_STREAM) (Deprecated)
-
-```javascript
-{
-  "id": "815d5fce-0880-4287-a567-80badf004c74",
-  "method": "userDataStream.ping",
-  "params": {
-    "listenKey": "xs0mRXdAKlIPDRFrlPcw0qI41Eh3ixNntmymGyhrhgqo7L6FuLaWArTD7RLP",
-    "apiKey": "vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A"
-  }
-}
-```
-
-Ping a user data stream to keep it alive.
-
-User data streams close automatically after 60 minutes,
-even if you're listening to them on WebSocket Streams.
-In order to keep the stream open, you have to regularly send pings using the `userDataStream.ping` request.
-
-It is recommended to send a ping once every 30 minutes.
-
-This request does not require `signature`.
-
-**Weight:**
-2
-
-**Parameters:**
-
-Name                | Type    | Mandatory | Description
-------------------- | ------- | --------- | ------------
-`listenKey`         | STRING  | YES       |
-`apiKey`            | STRING  | YES       |
-
-**Data Source:**
-Memory
-
-**Response:**
-
-```javascript
-{
-  "id": "815d5fce-0880-4287-a567-80badf004c74",
-  "status": 200,
-  "response": {},
-  "rateLimits": [
-    {
-      "rateLimitType": "REQUEST_WEIGHT",
-      "interval": "MINUTE",
-      "intervalNum": 1,
-      "limit": 6000,
-      "count": 2
-    }
-  ]
-}
-```
-
-#### Stop user data stream (USER_STREAM) (Deprecated)
-
-```javascript
-{
-  "id": "819e1b1b-8c06-485b-a13e-131326c69599",
-  "method": "userDataStream.stop",
-  "params": {
-    "listenKey": "xs0mRXdAKlIPDRFrlPcw0qI41Eh3ixNntmymGyhrhgqo7L6FuLaWArTD7RLP",
-    "apiKey": "vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A"
-  }
-}
-```
-
-Explicitly stop and close the user data stream.
-This request does not require `signature`.
-
-**Weight:**
-2
-
-**Parameters:**
-
-Name                | Type    | Mandatory | Description
-------------------- | ------- | --------- | ------------
-`listenKey`         | STRING  | YES       |
-`apiKey`            | STRING  | YES       |
-
-**Data Source:**
-Memory
-
-**Response:**
-```javascript
-{
-  "id": "819e1b1b-8c06-485b-a13e-131326c69599",
-  "status": 200,
-  "response": {},
-  "rateLimits": [
-    {
-      "rateLimitType": "REQUEST_WEIGHT",
-      "interval": "MINUTE",
-      "intervalNum": 1,
-      "limit": 6000,
-      "count": 2
-    }
-  ]
 }
 ```

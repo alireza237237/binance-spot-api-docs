@@ -1,6 +1,6 @@
 # REST行情与交易接口
 
-**最近更新： 2025-09-29**
+**最近更新： 2025-10-24**
 
 <a id="general-api-information"></a>
 ## API 基本信息
@@ -573,7 +573,8 @@ GET /api/v3/depth
 名称 | 类型 | 是否必须 | 描述
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
-limit | INT | NO | 默认： 100; 最大： 5000。 <br/> 如果 limit > 5000, 最多返回5000条数据.
+limit | INT | NO | 默认： 100; 最大： 5000。 <br/> 如果 limit > 5000, 最多返回5000条数据。
+`symbolStatus`|ENUM | NO | 过滤具有此 `tradingStatus` 的交易对。<br/>如果状态不匹配，将返回错误 `-1220 交易对与状态不匹配`<br/>有效值： `TRADING`, `HALT`, `BREAK`
 
 **数据源:**
 缓存
@@ -958,6 +959,12 @@ GET /api/v3/ticker/24hr
         <td>NO</td>
         <td>可接受的参数: <tt>FULL</tt> or <tt>MINI</tt>. <br/>如果不提供, 默认值为 <tt>FULL</tt> </td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td>NO</td>
+        <td>过滤具有此 <code>tradingStatus</code> 的交易对。<br>对于单个交易对，如果状态不匹配，将返回错误 <code>-1220 交易对与状态不匹配</code>。<br>对于多个或者全部交易对， 响应中不会包括状态不匹配的交易对。<br>有效值： <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -1117,6 +1124,12 @@ GET /api/v3/ticker/tradingDay
       <td>ENUM</td>
       <td>NO</td>
       <td>可接受值: <tt>FULL</tt> or <tt>MINI</tt>. <br/>默认值: <tt>FULL</tt> </td>
+  </tr>
+  <tr>
+      <td>symbolStatus</td>
+      <td>ENUM</td>
+      <td>NO</td>
+      <td>过滤具有此 <code>tradingStatus</code> 的交易对。<br>对于单个交易对，如果状态不匹配，将返回错误 <code>-1220 交易对与状态不匹配</code>。<br>对于多个交易对， 响应中不会包括状态不匹配的交易对。<br>有效值： <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
   </tr>
 </table>
 
@@ -1317,6 +1330,12 @@ GET /api/v3/ticker/price
         <td>STRING</td>
         <td>NO</td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td>NO</td>
+        <td>过滤具有此 <code>tradingStatus</code> 的交易对。<br>对于单个交易对，如果状态不匹配，将返回错误 <code>-1220 交易对与状态不匹配</code>。<br>对于多个或者全部交易对， 响应中不会包括状态不匹配的交易对。<br>有效值： <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -1415,6 +1434,12 @@ GET /api/v3/ticker/bookTicker
         <td>STRING</td>
         <td>NO</td>
     </tr>
+    <tr>
+        <td>symbolStatus</td>
+        <td>ENUM</td>
+        <td>NO</td>
+        <td>过滤具有此 <code>tradingStatus</code> 的交易对。<br>对于单个交易对，如果状态不匹配，将返回错误 <code>-1220 交易对与状态不匹配</code>。<br>对于多个或者全部交易对， 响应中不会包括状态不匹配的交易对。<br>有效值： <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
+    </tr>
 </tbody>
 </table>
 
@@ -1500,8 +1525,14 @@ GET /api/v3/ticker
   <tr>
      <td>type</td>
      <td>ENUM</td>
-      <td>NO</td>
+     <td>NO</td>
       <td>可接受的参数: <tt>FULL</tt> or <tt>MINI</tt>. <br/>如果不提供, 默认值为 <tt>FULL</tt> </td>
+  </tr>
+  <tr>
+      <td>symbolStatus</td>
+      <td>ENUM</td>
+      <td>NO</td>
+      <td>过滤具有此 <code>tradingStatus</code> 的交易对。<br>对于单个交易对，如果状态不匹配，将返回错误 <code>-1220 交易对与状态不匹配</code>。<br>对于多个交易对， 响应中不会包括状态不匹配的交易对。<br>有效值： <code>TRADING</code>, <code>HALT</code>, <code>BREAK</code> </td>
   </tr>
 </table>
 
@@ -4201,91 +4232,4 @@ timestamp  | LONG   | YES     |
     }
   ]
 }
-```
-
-
-<a id="user-data-stream-requests"></a>
-
-## 用户数据流订阅接口
-
-> [!IMPORTANT]
-> 这些请求已被弃用，这意味着我们以后会删除这些请求。
-> 请通过订阅 [WebSocket API](web-socket-api_CN.md) 来获得用户账户更新。
-
-以下请求管理 [WebSocket 帐户信息](user-data-stream_CN.md) 订阅。
-
-### 新建用户数据流 (USER_STREAM) (已弃用)
-```
-POST /api/v3/userDataStream
-```
-从创建起60分钟有效
-此请求不需要 `signature`。
-
-**权重:**
-2
-
-**参数:**
-NONE
-
-**数据源:**
-缓存
-
-
-**响应:**
-
-```javascript
-{
-  "listenKey": "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1" // 用于订阅的数据流名
-}
-```
-
-### Keepalive (USER_STREAM) (已弃用)
-```
-PUT /api/v3/userDataStream
-```
-延长用户数据流有效期到60分钟之后。 建议每30分钟调用一次
-此请求不需要 `signature`。
-
-**权重:**
-2
-
-**参数:**
-
-名称 | 类型 | 是否必需 | 描述
------------- | ------------ | ------------ | ------------
-listenKey | STRING | YES
-
-**数据源:**
-缓存
-
-**响应:**
-
-```javascript
-{}
-```
-
-### 关闭用户数据流 (USER_STREAM) (已弃用)
-```
-DELETE /api/v3/userDataStream
-```
-关闭用户数据流。
-此请求不需要 `signature`。
-
-
-**权重:**
-2
-
-**参数:**
-
-名称 | 类型 | 是否必需 | 描述
------------- | ------------ | ------------ | ------------
-listenKey | STRING | YES
-
-**数据源:**
-缓存
-
-**响应:**
-
-```javascript
-{}
 ```
